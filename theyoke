@@ -1,12 +1,12 @@
-#!/usr/local/bin/perl
+#!/usr/bin/env perl
 
 # $Id: theyoke 34 2007-02-18 18:50:19Z mackers $
 # http://www.mackers.com/projects/theyoke/
 #
-# TheYoke is an ultra-simple RSS aggregrator designed for use on the UNIX command line.
+# TheYoke is an ultra-simple feed aggregrator designed for use on the UNIX command line.
 
 use strict;
-use XML::RSS;
+use XML::Feed;
 use URI;
 use LWP::UserAgent;
 use Digest::MD5 qw(md5_base64);
@@ -178,45 +178,36 @@ foreach my $feed_url (@feed_urls) {
 		print STDERR "theyoke: checksums match, skipping\n" if ($OPTIONS{'debug'});
 	} else {
 
-		### new content - parse the rss
+		### new content - parse the feed
 		my $newtitle = 0;
-		my $rss = new XML::RSS;
-		my $rss_title = "";
-		{
-			# XML::RSS seems to always through a DIE
-			#local $SIG{__DIE__} = sub { print STDERR "theyoke: RSS parser error on \"$feed_url\".\n"; };
-			eval {
-				$rss->parse($content);
-			};
-			if ($@) {
-				print STDERR "theyoke: RSS parser error on \"$feed_url\": $@\n";
+		my $feed = XML::Feed->parse(\$content);
+		if(!$feed) {
+				print STDERR "theyoke: feed parser error on \"$feed_url\". Error: " . XML::Feed->errstr;
 				next;
-			}
 		}
-		$rss_title = $rss->channel('title');
+		my $feed_title = $feed->title;
 
 		### check for no items
-		if (@{$rss->{'items'}} == 0) {
-			print STDERR "theyoke: no RSS items found in \"$feed_url\". bad RSS?\n";
+		if ($feed->items == 0) {
+			print STDERR "theyoke: no feed items found in \"$feed_url\". bad feed?\n";
 			next;
 		}
 
 		### check for no title
-		if ($rss_title eq "") {
-			print STDERR "theyoke: no channel title found for \"$feed_url\". bad RSS?\n";
+		if ($feed_title eq "") {
+			print STDERR "theyoke: no channel title found for \"$feed_url\". bad feed?\n";
 			next;
 		}
 
 		### look for new items
-		foreach my $item (@{$rss->{'items'}}) {
-			my $this_description = $item->{'description'};
-			my $this_title = $item->{'title'};
-			my $this_link = $item->{'link'};
+		foreach my $item ($feed->items) {
+			my $this_description = $item->summary;
+			my $this_title = $item->title;
+			my $this_link = $item->link;
 			my $wassname = "";
 			if ($this_title ne "") {
 				$wassname = $this_title;
 			} elsif ($this_description ne "") {
-				#$wassname = substr($this_description,0,30) . "...";
 				$wassname = $this_description;
 			} elsif ($this_link ne "") {
 				$wassname = $this_link;
@@ -237,30 +228,30 @@ foreach my $feed_url (@feed_urls) {
 
 				my $printy = "";
 
-                                if (!$OPTIONS{'no-feedname'} && $this_title) {
-                                    $printy .= "$rss_title: ";
-                                }
+				if (!$OPTIONS{'no-feedname'} && $this_title) {
+					$printy .= "$feed_title: ";
+				}
 
-                                if (!$OPTIONS{'no-title'} && $this_title) {
-                                    $printy .= $wassname;
-                                    if (length($printy) > $columns-4) {
-                                            $printy = substr($printy,0,$columns-4) . "...";
-                                    }
-                                }
+				if (!$OPTIONS{'no-title'} && $this_title) {
+					$printy .= $wassname;
+					if (length($printy) > $columns-1) {
+						$printy = substr($printy,0,$columns-1) . "…";
+					}
+				}
 
-                                if ($printy ne "") {
-                                    push(@OUTPUT, $printy . "\n");
-                                }
-                                
+				if ($printy ne "") {
+					push(@OUTPUT, $printy . "\n");
+				}
+
 				if ($OPTIONS{'description'} && $this_title) {
 					$this_description = HTML::FormatText->format_string($this_description);
 					$this_description =~ s/[\r\n]\s*/\n\t/g;
-                                        $this_description = "\t$this_description" if (!$OPTIONS{'no-feedname'});
+					$this_description = "\t$this_description" if (!$OPTIONS{'no-feedname'});
 					push(@OUTPUT, "$this_description\n");
 				}
-                                
+
 				if ($OPTIONS{'link'} && $this_title) {
-                                        $this_link = "\t$this_link" if (!$OPTIONS{'no-feedname'});
+					$this_link = "\t$this_link" if (!$OPTIONS{'no-feedname'});
 					push(@OUTPUT, "$this_link\n");
 				}
 				$dont_have_content = 0;
@@ -280,7 +271,7 @@ foreach my $feed_url (@feed_urls) {
 		}
 	}
 
-	# check for changed rss file but not changed headings
+	# check for changed feed file but not changed headings
 	if ($new_last_title eq "") {
 		if ($OPTIONS{'debug'}) {
 			if ($new_content_digest ne $previous_content_digest) {

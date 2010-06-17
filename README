@@ -14,13 +14,14 @@ Features:
     * Can be used to feed urls to wget or youtube-dl.
     * Free to download and use.
 
-Installation
+
+Installation:
 
    1. Install the required perl modules (available from CPAN):
           * libwww-perl
           * HTML::Parser
           * URI
-          * XML::RSS
+          * XML::Feed
           * Digest::MD5
           * Encode
    2. Download the source below, renaming to "theyoke".
@@ -29,9 +30,50 @@ Installation
    5. Add your RSS feed URLs to "~/.theyoke/feeds".
    6. Every subsequent execution will display new items in the list of feeds.
 
-Disclaimer
+
+Commandline Options:
+
+    Synopsis
+        theyoke: [[--debug]|[-d]]+ [--test] [--description] [--link] [--no-title] [--no-feedname] [[--version] [-V]] [[--columns=int] [-c=int]] [--numfeeds=number] [--onlyfeeds=regexp] [--reversetime] [feedurl]...
+
+    Options
+        -d, --debug
+            Enables debugging output. May be specified multiple times to increase verbosity.
+
+        --test
+            If specified, feed items are not marked as read.
+
+        --description
+            Prints the description for each feed item
+
+        --link
+            Prints the link associated with each feed item
+
+        --no-title
+            Do not print the feed item's title
+
+        --no-feedname
+            Do not print the feed's name
+
+        -V, --version
+            Print version number and exit
+
+        -c <amount>, --columns <amount>
+            Limit the feed item's title to <amount> characters. All values below 10 are ignored. If the title exceeds the given amount an ellipses will be added to the title.
+
+        --numfeeds <amout>
+            Process a maximum of <amount> feeds
+
+        --onlyfeeds <regular expression>
+            Process only feeds whose URL match the given regular expression
+
+        --reversetime
+            Print feed items for each feed in reverse order
+
+
+
+Disclaimer:
 
 This program is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
 http://github.com/mackers/theyoke
-
