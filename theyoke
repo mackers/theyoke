@@ -270,9 +270,9 @@ foreach my $feed_url (@feed_urls) {
 					push(@OUTPUT, "Subject: $this_title\n");
 					push(@OUTPUT, "User-Agent: Heirloom mailx 12.5 7/5/10\nMIME-Version: 1.0\nContent-Type: text/plain; charset=us-ascii\nContent-Transfer-Encoding: 7bit\n\n");
 					open (my $tmphtml, '>', "$config_dir.tmphtml") or die "Couldn't open tmphtml: $!";
-					print $tmphtml "$this_link\n\n";
 					print $tmphtml $this_content;
 					close $tmphtml;
+					push(@OUTPUT, "$this_link\n\n");
 					push(@OUTPUT, `links -dump $config_dir.tmphtml`);
 					push(@OUTPUT, "\n");
 					}
