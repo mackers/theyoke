@@ -15,7 +15,7 @@ use Term::Size;
 use Getopt::Long;
 use HTML::FormatText;
 
-my($USAGE) = "Usage: $0: [[--debug]|[-d]]+ [--test] [--description] [--link] [--no-title] [--no-feedname] [[--version] [-V]] [[--columns=int] [-c=int]] [--numfeeds=number] [--onlyfeeds=regexp] [--reversetime] [feedurl]...\n";
+my($USAGE) = "Usage: $0: [[--debug]|[-d]]+ [--test] [--description] [--link] [--no-title] [--no-feedname] [[--version] [-V]] [[--columns=int] [-c=int]] [--numfeeds=number] [--onlyfeeds=regexp] [--reversetime] [--tomail] [feedurl]...\n";
 my $version = "1.23-baka";
 my $config_dir = $ENV{'HOME'} . "/.theyoke/";
 my $feeds_dir = $config_dir . ".feeds/";
@@ -27,7 +27,7 @@ my (%OPTIONS);
 my $exit_val = 0;
 
 Getopt::Long::Configure("bundling", "no_ignore_case", "no_auto_abbrev", "no_getopt_compat", "require_order");
-GetOptions(\%OPTIONS, 'debug|d+', 'test', 'description', 'link', 'title', 'no-title', 'no-feedname', 'version|V+', 'columns|c=i', 'numfeeds=i', 'onlyfeeds=s', 'reversetime') || die $USAGE;
+GetOptions(\%OPTIONS, 'debug|d+', 'test', 'description', 'link', 'title', 'no-title', 'no-feedname', 'version|V+', 'columns|c=i', 'numfeeds=i', 'onlyfeeds=s', 'reversetime', 'tomail') || die $USAGE;
 
 
 
@@ -204,7 +204,10 @@ foreach my $feed_url (@feed_urls) {
 			my $this_description = $item->summary;
 			my $this_title = $item->title;
 			my $this_link = $item->link;
+			my $this_content = $item->content->body;
+			my $this_date = $item->issued;
 			my $wassname = "";
+			my $tomail = $OPTIONS{'tomail'};
 			if ($this_title ne "") {
 				$wassname = $this_title;
 			} elsif ($this_description ne "") {
@@ -239,21 +242,42 @@ foreach my $feed_url (@feed_urls) {
 					}
 				}
 
-				if ($printy ne "") {
+				if ($printy ne "" && !$tomail) {
 					push(@OUTPUT, $printy . "\n");
 				}
 
-				if ($OPTIONS{'description'} && $this_title) {
+				if ($OPTIONS{'description'} && $this_title && !$tomail) {
 					$this_description = HTML::FormatText->format_string($this_description);
 					$this_description =~ s/[\r\n]\s*/\n\t/g;
 					$this_description = "\t$this_description" if (!$OPTIONS{'no-feedname'});
 					push(@OUTPUT, "$this_description\n");
 				}
 
-				if ($OPTIONS{'link'} && $this_title) {
+				if ($OPTIONS{'link'} && $this_title && !$tomail) {
 					$this_link = "\t$this_link" if (!$OPTIONS{'no-feedname'});
 					push(@OUTPUT, "$this_link\n");
 				}
+
+				if ($tomail && $this_title) {
+					if($this_date) {
+						my $this_from_date = $this_date->strftime("%a %b %e %H:%M:%S %Y");
+						my $this_date = $this_date->strftime("%a, %d %b %Y %H:%M:%S");
+						my $this_mailfrom = $feed_title;
+						$this_mailfrom =~ s/ /_/g;
+					push(@OUTPUT, "From $this_mailfrom $this_from_date\n");
+					push(@OUTPUT, "Date: $this_date\n");
+					push(@OUTPUT, "To: RSS\n");
+					push(@OUTPUT, "Subject: $this_title\n");
+					push(@OUTPUT, "User-Agent: Heirloom mailx 12.5 7/5/10\nMIME-Version: 1.0\nContent-Type: text/plain; charset=us-ascii\nContent-Transfer-Encoding: 7bit\n\n");
+					open (my $tmphtml, '>', "$config_dir.tmphtml") or die "Couldn't open tmphtml: $!";
+					print $tmphtml "$this_link\n\n";
+					print $tmphtml $this_content;
+					close $tmphtml;
+					push(@OUTPUT, `links -dump $config_dir.tmphtml`);
+					push(@OUTPUT, "\n");
+					}
+				}
+
 				$dont_have_content = 0;
 				# save latest title
 				if ($new_last_title eq "") {
