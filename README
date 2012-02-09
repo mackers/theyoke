@@ -34,7 +34,7 @@ Installation:
 Commandline Options:
 
     Synopsis
-        theyoke: [[--debug]|[-d]]+ [--test] [--description] [--link] [--no-title] [--no-feedname] [[--version] [-V]] [[--columns=int] [-c=int]] [--numfeeds=number] [--onlyfeeds=regexp] [--reversetime] [feedurl]...
+        theyoke: [[--debug]|[-d]]+ [--test] [--description] [--link] [--no-title] [--no-feedname] [[--version] [-V]] [[--columns=int] [-c=int]] [--numfeeds=number] [--onlyfeeds=regexp] [--reversetime] [--tomail] [feedurl]...
 
     Options
         -d, --debug
@@ -69,6 +69,9 @@ Commandline Options:
 
         --reversetime
             Print feed items for each feed in reverse order
+
+        --tomail
+            Prints feed items in full, in the form of an email parsable by formail.
 
 
 
