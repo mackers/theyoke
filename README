@@ -76,6 +76,9 @@ Commandline Options:
         --color
             Prints colorized output in a supporting terminal.
 
+        --group
+            Print output grouped by feed.
+
 
 
 Disclaimer:

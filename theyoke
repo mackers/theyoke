@@ -27,12 +27,13 @@ my (%OPTIONS);
 my $exit_val = 0;
 
 # ANSI sequences for colorized output
+my $color_group_name = "\e[1;32m";
 my $color_title = "\e[1m";
 my $color_link = "\e[34m";
 my $color_clear = "\e[0m";
 
 Getopt::Long::Configure("bundling", "no_ignore_case", "no_auto_abbrev", "no_getopt_compat", "require_order");
-GetOptions(\%OPTIONS, 'debug|d+', 'test', 'description', 'link', 'title', 'no-title', 'no-feedname', 'version|V+', 'columns|c=i', 'numfeeds=i', 'onlyfeeds=s', 'reversetime', 'tomail', 'color') || die $USAGE;
+GetOptions(\%OPTIONS, 'debug|d+', 'test', 'description', 'link', 'title', 'no-title', 'no-feedname', 'version|V+', 'columns|c=i', 'numfeeds=i', 'onlyfeeds=s', 'reversetime', 'tomail', 'color', 'group') || die $USAGE;
 
 
 
@@ -115,6 +116,8 @@ foreach my $feed_url (@feed_urls) {
 		print STDERR "theyoke: Skipping... not in /$OPTIONS{'onlyfeeds'}/\n" if ($OPTIONS{'debug'});
 		next;
 	}
+
+	my $feed_name_printed = 0;
 
 	### get the filename
 	my $file_digest = &get_checksum($feed_url);
@@ -229,6 +232,15 @@ foreach my $feed_url (@feed_urls) {
 
 				$columns = $OPTIONS{'columns'} if (defined($OPTIONS{'columns'}));
 				$columns = 32768 if ($columns < 10);
+				
+				if ($OPTIONS{'group'} && !$feed_name_printed) {
+					if ($OPTIONS{'color'}) {
+						push(@OUTPUT, "$color_group_name$feed_title$color_clear\n");
+					} else {
+						push(@OUTPUT, "$feed_title\n");
+					}
+					$feed_name_printed = 1;
+				}
 
 				$wassname = HTML::FormatText->format_string($wassname);
 				$wassname =~ s/[\r\n]/ /g;
@@ -325,6 +337,10 @@ foreach my $feed_url (@feed_urls) {
 			print @OUTPUT;
 		}
 		undef(@OUTPUT);
+	}
+
+	if ($OPTIONS{'group'}) {
+		print "\n";
 	}
 
 	### save checksum
