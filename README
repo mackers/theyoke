@@ -73,6 +73,9 @@ Commandline Options:
         --tomail
             Prints feed items in full, in the form of an email parsable by formail.
 
+        --color
+            Prints colorized output in a supporting terminal.
+
 
 
 Disclaimer:

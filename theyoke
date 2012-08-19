@@ -26,8 +26,13 @@ my @feed_urls;
 my (%OPTIONS);
 my $exit_val = 0;
 
+# ANSI sequences for colorized output
+my $color_title = "\e[1m";
+my $color_link = "\e[34m";
+my $color_clear = "\e[0m";
+
 Getopt::Long::Configure("bundling", "no_ignore_case", "no_auto_abbrev", "no_getopt_compat", "require_order");
-GetOptions(\%OPTIONS, 'debug|d+', 'test', 'description', 'link', 'title', 'no-title', 'no-feedname', 'version|V+', 'columns|c=i', 'numfeeds=i', 'onlyfeeds=s', 'reversetime', 'tomail') || die $USAGE;
+GetOptions(\%OPTIONS, 'debug|d+', 'test', 'description', 'link', 'title', 'no-title', 'no-feedname', 'version|V+', 'columns|c=i', 'numfeeds=i', 'onlyfeeds=s', 'reversetime', 'tomail', 'color') || die $USAGE;
 
 
 
@@ -236,7 +241,11 @@ foreach my $feed_url (@feed_urls) {
 				}
 
 				if (!$OPTIONS{'no-title'} && $this_title) {
-					$printy .= $wassname;
+					if ($OPTIONS{'color'}) {
+						$printy .= $color_title . $wassname . $color_clear;
+					} else {
+						$printy .= $wassname;
+					}
 					if (length($printy) > $columns-1) {
 						$printy = substr($printy,0,$columns-1) . "…";
 					}
@@ -254,7 +263,8 @@ foreach my $feed_url (@feed_urls) {
 				}
 
 				if ($OPTIONS{'link'} && $this_title && !$tomail) {
-					$this_link = "\t$this_link" if (!$OPTIONS{'no-feedname'});
+					$this_link = "\t$this_link";
+					$this_link = $color_link . $this_link . $color_clear if ($OPTIONS{'color'});
 					push(@OUTPUT, "$this_link\n");
 				}
 
