@@ -42,6 +42,8 @@ if ($OPTIONS{'version'}) {
 	exit(0);
 }
 
+undef($OPTIONS{'color'}) if $OPTIONS{'tomail'};
+
 ### Check for files and dirs. If none, create ###
 unless (-d $config_dir || $#ARGV >= 0) {
 	mkdir ($config_dir) || die ("Couldn't create directory $config_dir");
