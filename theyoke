@@ -227,7 +227,7 @@ foreach my $feed_url (@feed_urls) {
 			} else {
 				next;
 			}
-			my $this_wassname_digest = &get_checksum($wassname);
+			my $this_wassname_digest = &get_checksum($wassname . $this_date);
 			if ($this_wassname_digest ne $last_title) {
 				# aha! new content
 				my ($columns, $rows) = Term::Size::chars *STDOUT{IO};
