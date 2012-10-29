@@ -211,7 +211,7 @@ foreach my $feed_url (@feed_urls) {
 
 		### look for new items
 		foreach my $item ($feed->items) {
-			my $this_description = $item->summary;
+			my $this_description = $item->summary->body;
 			my $this_title = $item->title;
 			my $this_link = $item->link;
 			my $this_content = $item->content->body;
