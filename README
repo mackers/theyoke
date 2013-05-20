@@ -15,6 +15,28 @@ Features:
     * Free to download and use.
 
 
+Installation as CPAN module:
+
+   1. be sure dzil and a CPAN client (cpanm used here) are installed
+   2. be sure the current directory is the one you read this README from
+   3. type
+
+      dzil build
+      cd app-theyoke-1.23/
+      cpanm .
+
+Installation as debian package:
+
+   1. step 1 and 2 from "Installation as CPAN module"
+   2. type
+
+      dzil build
+      cd app-theyoke-1.23/
+      dh-make-perl --build .
+
+   3. a debian package is created in the same directory than the README you're
+      reading
+
 Installation:
 
    1. Install the required perl modules (available from CPAN):
