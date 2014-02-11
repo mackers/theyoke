@@ -40,7 +40,7 @@ Installation as debian package:
 Installation:
 
    1. Install the required perl modules (available from CPAN):
-          * libwww-perl
+          * LWP (libwww-perl)
           * HTML::Parser
           * URI
           * XML::Feed
