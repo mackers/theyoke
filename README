@@ -46,6 +46,7 @@ Installation:
           * XML::Feed
           * Digest::MD5
           * Encode
+          * Term::Size
    2. Download the source below, renaming to "theyoke".
    3. Make it executable: chmod 755 theyoke.
    4. Run with ./theyoke to create the configuration files and directories.
