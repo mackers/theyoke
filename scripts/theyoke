@@ -261,7 +261,7 @@ foreach my $feed_url (@feed_urls) {
 						$printy .= $wassname;
 					}
 					if (length($printy) > $columns-1) {
-						$printy = substr($printy,0,$columns-1) . "…";
+						$printy = substr($printy,0,$columns-1) . "\x{2026}";
 					}
 				}
 
@@ -333,6 +333,7 @@ foreach my $feed_url (@feed_urls) {
 	}
 
 	if ($#OUTPUT >= 0) {
+		binmode(STDOUT, ":utf8");
 		if ($OPTIONS{'reversetime'}) {
 			print reverse @OUTPUT;
 		} else {
